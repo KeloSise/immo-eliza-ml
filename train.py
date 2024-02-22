@@ -20,7 +20,7 @@ def train():
     zip_code_counts = data['zip_code'].value_counts()
 
     # Select the top 10 most common zip codes
-    top_zip_codes = zip_code_counts.head(10).index
+    top_zip_codes = zip_code_counts.head(18).index
 
     # Filter the dataset to include only properties within the top zip codes
     data = data[data['zip_code'].isin(top_zip_codes)]
