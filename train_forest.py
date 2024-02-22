@@ -82,7 +82,7 @@ def train():
         "enc": enc,
         "model": model,
     }
-    joblib.dump(artifacts, "models/artifacts_forest.joblib")
+    joblib.dump(artifacts, "models/artifacts_forest.joblib", compress=3)
 
 if __name__ == "__main__":
     train()
