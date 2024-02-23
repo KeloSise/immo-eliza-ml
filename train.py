@@ -10,60 +10,38 @@ def train():
     # Load the data
     data = pd.read_csv("data/properties.csv")
 
-    # Define numerical features to use
-    num_features = ["nbr_bedrooms", "total_area_sqm"]
+    # Correct numeric features based on the DataFrame's column names
+    num_features = ["nbr_bedrooms", "total_area_sqm", "surface_land_sqm"] # assuming 'nbr_bathrooms' is the correct name
 
-    # Define categorical features to use
-    cat_features = ["zip_code"]
+    # Assuming 'region' is the correct categorical feature name
+    cat_features = ["region"]
 
-    # Get the counts of each zip code
-    zip_code_counts = data['zip_code'].value_counts()
-
-    # Select the top 18 most common zip codes
-    top_zip_codes = zip_code_counts.head(18).index
-
-    # Filter the dataset to include only properties within the top zip codes
-    data = data[data['zip_code'].isin(top_zip_codes)]
 
     # Split the data into features and target
     X = data[num_features + cat_features]
     y = data["price"]
 
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.20, random_state=505
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
 
-    # Impute missing values using SimpleImputer for numerical features
+    # Impute missing values for numerical features
     imputer = SimpleImputer(strategy="mean")
-    imputer.fit(X_train[num_features])
-    X_train[num_features] = imputer.transform(X_train[num_features])
+    X_train[num_features] = imputer.fit_transform(X_train[num_features])
     X_test[num_features] = imputer.transform(X_test[num_features])
 
-    # Convert categorical column 'zip_code' with one-hot encoding using OneHotEncoder
+    # Apply one-hot encoding to categorical features
     enc = OneHotEncoder(handle_unknown='ignore')
-    enc.fit(X_train[cat_features])
-    X_train_cat = enc.transform(X_train[cat_features]).toarray()
+    X_train_cat = enc.fit_transform(X_train[cat_features]).toarray()
     X_test_cat = enc.transform(X_test[cat_features]).toarray()
 
-    # Combine the numerical and one-hot encoded categorical columns
-    X_train_prepared = pd.concat(
-        [
-            pd.DataFrame(X_train[num_features], index=X_train.index),
-            pd.DataFrame(X_train_cat, index=X_train.index, columns=enc.get_feature_names_out()),
-        ],
-        axis=1,
-    )
-    X_test_prepared = pd.concat(
-        [
-            pd.DataFrame(X_test[num_features], index=X_test.index),
-            pd.DataFrame(X_test_cat, index=X_test.index, columns=enc.get_feature_names_out()),
-        ],
-        axis=1,
-    )
+    # Combine numerical and one-hot encoded categorical features
+    X_train_prepared = pd.concat([pd.DataFrame(X_train[num_features], index=X_train.index),
+                                  pd.DataFrame(X_train_cat, index=X_train.index, columns=enc.get_feature_names_out())], axis=1)
+    X_test_prepared = pd.concat([pd.DataFrame(X_test[num_features], index=X_test.index),
+                                 pd.DataFrame(X_test_cat, index=X_test.index, columns=enc.get_feature_names_out())], axis=1)
 
-    # Train the model using Random Forest
-    model = RandomForestRegressor(n_estimators=100, random_state=505)
+    # Train the Random Forest model
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
     model.fit(X_train_prepared, y_train)
 
     # Evaluate the model
@@ -72,17 +50,9 @@ def train():
     print(f"Train R² score: {train_score}")
     print(f"Test R² score: {test_score}")
 
-    # Save the model and other artifacts
-    artifacts = {
-        "features": {
-            "num_features": num_features,
-            "cat_features": cat_features,
-        },
-        "imputer": imputer,
-        "enc": enc,
-        "model": model,
-    }
-    joblib.dump(artifacts, "models/artifacts_forest.joblib", compress=3)
+    # Save the model and preprocessing artifacts
+    joblib.dump({"features": {"num_features": num_features, "cat_features": cat_features},
+                 "imputer": imputer, "enc": enc, "model": model}, "models/artifacts_forest.joblib", compress=3)
 
 if __name__ == "__main__":
     train()
