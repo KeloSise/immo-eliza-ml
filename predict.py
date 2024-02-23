@@ -16,7 +16,7 @@ def predict(input_dataset, output_dataset):
     data = pd.read_csv(input_dataset)
 
     # Load the model artifacts using joblib
-    artifacts = joblib.load("models/artifacts.joblib")
+    artifacts = joblib.load("models/artifacts_forest.joblib")
 
     # Unpack the artifacts
     num_features = artifacts["features"]["num_features"]  # ['nbr_bedrooms', 'total_area_sqm']

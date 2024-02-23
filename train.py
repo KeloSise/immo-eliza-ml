@@ -1,7 +1,7 @@
 import joblib
 import pandas as pd
 from sklearn.impute import SimpleImputer
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
@@ -19,7 +19,7 @@ def train():
     # Get the counts of each zip code
     zip_code_counts = data['zip_code'].value_counts()
 
-    # Select the top 10 most common zip codes
+    # Select the top 18 most common zip codes
     top_zip_codes = zip_code_counts.head(18).index
 
     # Filter the dataset to include only properties within the top zip codes
@@ -50,7 +50,7 @@ def train():
     X_train_prepared = pd.concat(
         [
             pd.DataFrame(X_train[num_features], index=X_train.index),
-         pd.DataFrame(X_train_cat, index=X_train.index, columns=enc.get_feature_names_out()),
+            pd.DataFrame(X_train_cat, index=X_train.index, columns=enc.get_feature_names_out()),
         ],
         axis=1,
     )
@@ -62,8 +62,8 @@ def train():
         axis=1,
     )
 
-    # Train the model
-    model = LinearRegression()
+    # Train the model using Random Forest
+    model = RandomForestRegressor(n_estimators=100, random_state=505)
     model.fit(X_train_prepared, y_train)
 
     # Evaluate the model
@@ -82,7 +82,7 @@ def train():
         "enc": enc,
         "model": model,
     }
-    joblib.dump(artifacts, "models/artifacts.joblib")
+    joblib.dump(artifacts, "models/artifacts_forest.joblib", compress=3)
 
 if __name__ == "__main__":
     train()
