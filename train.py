@@ -52,7 +52,7 @@ def train():
 
     # Save the model and preprocessing artifacts
     joblib.dump({"features": {"num_features": num_features, "cat_features": cat_features},
-                 "imputer": imputer, "enc": enc, "model": model}, "models/artifacts_forest.joblib", compress=3)
+                 "imputer": imputer, "enc": enc, "model": model}, "models/artifacts_forest.joblib", compress=9)
 
 if __name__ == "__main__":
     train()
