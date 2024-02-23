@@ -6,11 +6,10 @@ import pandas as pd
 @click.option("-i", "--input-dataset", help="Path to input .csv dataset", required=True)
 @click.option("-o", "--output-dataset", default="output/predictions.csv", help="Path to save predictions", required=True)
 def predict(input_dataset, output_dataset):
-    # Load new data
+
     data = pd.read_csv(input_dataset)
 
-    # Load saved artifacts
-    artifacts = joblib.load("models/artifacts_forest.joblib")
+    artifacts = joblib.load("models/artifacts.joblib")
 
     # Unpack artifacts
     num_features = artifacts["features"]["num_features"]
